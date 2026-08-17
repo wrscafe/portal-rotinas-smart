@@ -384,3 +384,63 @@ create table public.atividades (
 - **Componentização**: `StatusBadge` e `PrioridadeBadge` são reutilizáveis e podem ser usados em outras telas (ex: detalhes da atividade).
 - **Fallback visual**: uso do operador `??` garante que valores inesperados não quebrem a interface.
 
+# 📄 Documentação — Exportação de Relatório em PDF
+
+## 🎯 Objetivo
+Permitir que o usuário exporte o relatório de atividades (visualizado na tela `/relatorios`) como um arquivo **PDF**, contendo:
+- Logo da empresa
+- Título e período do relatório
+- Cards de resumo (Total, Pendentes, Em Andamento, Concluídas)
+- Tabela de atividades por responsável
+- Lista detalhada de atividades (título, descrição, status, prioridade, responsável)
+- Rodapé com data de geração
+
+---
+
+## 🧩 Tecnologia utilizada
+**`@react-pdf/renderer`** — biblioteca que permite criar documentos PDF usando componentes React (`<Document>`, `<Page>`, `<Text>`, `<View>`, `<Image>`), de forma parecida com criar uma página normal.
+
+---
+
+## 📁 Arquivos criados/alterados
+
+### 1. `src/app/relatorios/page.tsx`
+- Busca as atividades no Supabase, incluindo `titulo` e `descricao` (antes só buscava dados para os gráficos/tabela)
+- Passa todos os dados (resumo + lista de atividades) para o componente `BotaoExportarPDF`
+
+### 2. `src/components/relatorios/BotaoExportarPDF.tsx`
+- Componente client-side (`"use client"`) que renderiza o botão **"📄 Exportar PDF"**
+- Usa `PDFDownloadLink` do `@react-pdf/renderer`, mas carregado via `dynamic(..., { ssr: false })`
+
+**Por que isso é importante:**
+`PDFDownloadLink` depende de APIs do navegador (como `Blob` e `URL.createObjectURL`), que não existem no servidor. O Next.js tenta renderizar componentes no servidor primeiro (**SSR - Server Side Rendering**), causando o erro:
+> *"PDFDownloadLink is a web specific API"*
+
+A solução é usar `dynamic()` com `ssr: false`, dizendo ao Next.js: *"esse componente só deve carregar no navegador"*.
+
+### 3. `src/components/relatorios/RelatorioPDF.tsx`
+- Componente que define o **layout/design do PDF** em si (o "papel" que será gerado)
+- Usa `StyleSheet.create()` (sistema de estilos próprio do `react-pdf`, parecido com CSS, mas com nome de propriedades em camelCase)
+- Exibe a logo (`/logo_smart_redonda.png`, servida pela pasta `public`)
+- Renderiza dinamicamente a tabela de responsáveis e a lista de atividades com `.map()`
+
+---
+
+## 🔑 Conceitos técnicos aprendidos
+
+| Conceito | Explicação |
+|---|---|
+| **SSR (Server Side Rendering)** | O Next.js renderiza páginas no servidor antes de enviar ao navegador, por performance e SEO |
+| **`dynamic(() => import(...), { ssr: false })`** | Força um componente a carregar **apenas no navegador**, ignorando a etapa de SSR |
+| **`@react-pdf/renderer`** | Gera arquivos PDF reais usando sintaxe parecida com React/JSX |
+| **`public/` no Next.js** | Pasta cujos arquivos são servidos diretamente pela raiz do site (ex: `public/logo.png` → `/logo.png`) |
+| **Props tipadas com `interface`** | Cada componente define o "formato" dos dados que recebe, evitando erros e facilitando manutenção |
+
+---
+
+## ✅ Fluxo final
+1. Usuário acessa `/relatorios`
+2. Aplica filtro de período (opcional)
+3. Clica em **"📄 Exportar PDF"**
+4. O sistema gera o PDF no navegador com todos os dados filtrados
+5. Download automático do arquivo `relatorio-atividades-AAAA-MM-DD.pdf`
