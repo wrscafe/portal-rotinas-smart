@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   ClipboardList,
+  ClipboardCheck,
   BarChart3,
   Mail,
   Wrench,
@@ -16,6 +17,7 @@ import {
 const menuItems = [
   { nome: "Dashboard", href: "/", icone: LayoutDashboard },
   { nome: "Atividades", href: "/atividades", icone: ClipboardList },
+  { nome: "Checklist Viaturas", href: "/checklist", icone: ClipboardCheck },
   { nome: "Relatórios", href: "/relatorios", icone: BarChart3 },
   { nome: "Solicitações", href: "/solicitacoes", icone: Mail },
   { nome: "PTs", href: "/pts", icone: Wrench },
