@@ -1,4 +1,7 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
+
+const supabase = createClient();
+
 
 // Tipo que define a estrutura de uma atividade
 export type Atividade = {
@@ -15,6 +18,8 @@ export type Atividade = {
 // Função para criar uma nova atividade
 export async function criarAtividade(dados: Atividade) {
   try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log('Sessão atual:', sessionData);
     const { data, error } = await supabase
       .from('atividades')
       .insert([
