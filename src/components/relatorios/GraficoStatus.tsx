@@ -22,7 +22,9 @@ export default function GraficoStatus({ dados }: GraficoStatusProps) {
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={80}
+            innerRadius={60}
+            outerRadius={90}
+            paddingAngle={2}
             label
           >
             {dados.map((_, index) => (
