@@ -26,6 +26,7 @@ export default function ChecklistPDF({ checklist }: { checklist: ChecklistViatur
       <Page size="A4" style={styles.page}>
         
         <View style={styles.header}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image src="/logo_smart_redonda.png" style={styles.logo} />
           <View>
             <Text style={styles.title}>CHECKLIST DE VIATURA</Text>

@@ -24,6 +24,10 @@ export default async function ChecklistPage() {
     .order("data", { ascending: false })
     .order("hora", { ascending: false });
 
+  if (error) {
+    console.error("Erro ao buscar checklists:", error.message);
+  }
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">

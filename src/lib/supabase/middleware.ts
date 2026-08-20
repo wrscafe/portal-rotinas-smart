@@ -34,3 +34,16 @@ export async function updateSession(request: NextRequest) {
 
   return { supabase, response: supabaseResponse }
 }
+export async function middleware(request: NextRequest) {
+  const { supabase, response } = await updateSession(request)
+
+  await supabase.auth.getUser()
+
+  return response
+}
+
+export const config = {
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+}

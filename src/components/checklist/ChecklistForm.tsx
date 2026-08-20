@@ -9,6 +9,8 @@ const NIVEIS_PADRAO = ["Óleo do Motor","Óleo Hidráulico","Diesel","Arrefecime
 const LUZES_DIANTEIRAS_PADRAO = ["Farol Alto","Farol Baixo","Seta Direita","Seta Esquerda"];
 const LUZES_TRASEIRAS_PADRAO = ["Lanternas","Seta Direita","Seta Esquerda"];
 
+type StatusNivel = "OK" | "Baixo" | "Crítico";
+
 export default function ChecklistForm() {
   const router = useRouter();
   const supabase = createClient();
@@ -29,7 +31,7 @@ export default function ChecklistForm() {
     observacoes: "",
   });
 
-  const [niveis, setNiveis] = useState(
+  const [niveis, setNiveis] = useState<{ nome: string; status: StatusNivel; observacao: string }[]>(
     NIVEIS_PADRAO.map(nome => ({ nome, status: "OK", observacao: "" }))
   );
   const [luzesDianteiras, setLuzesDianteiras] = useState(
@@ -126,7 +128,7 @@ export default function ChecklistForm() {
           <div key={n.nome} className="grid grid-cols-3 gap-2 items-center">
             <span className="text-sm">{n.nome}</span>
             <select value={n.status} onChange={e => {
-              const novo = [...niveis]; novo[i].status = e.target.value as any; setNiveis(novo);
+              const novo = [...niveis]; novo[i].status = e.target.value as StatusNivel; setNiveis(novo);
             }} className="border rounded p-1 text-sm">
               <option>OK</option><option>Baixo</option><option>Crítico</option>
             </select>

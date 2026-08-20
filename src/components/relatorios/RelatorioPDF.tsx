@@ -102,6 +102,7 @@ export default function RelatorioPDF({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image src="/logo_smart_redonda.png" style={styles.logo} />
           <View>
             <Text style={styles.titulo}>Relatório de Atividades</Text>
