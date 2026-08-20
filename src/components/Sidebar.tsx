@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -12,7 +14,11 @@ import {
   Users,
   TrendingUp,
   Settings,
+  LogIn,
+  LogOut,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { fazerLogout } from "@/services/authService";
 
 const menuItems = [
   { nome: "Dashboard", href: "/", icone: LayoutDashboard },
@@ -28,10 +34,32 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
+  const router = useRouter();
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? null);
+    });
+  }, []);
+
+  async function handleClick() {
+    if (email) {
+      await fazerLogout();
+      setEmail(null);
+      router.push("/login");
+    } else {
+      router.push("/login");
+    }
+  }
+
   return (
-    <aside className="w-64 bg-gray-900 text-gray-100 min-h-screen p-4">
+    <aside className="w-64 bg-gray-900 text-gray-100 min-h-screen p-4 flex flex-col">
       <h1 className="text-lg font-bold mb-6 px-2">Portal Rotinas Smart</h1>
-      <nav className="flex flex-col gap-1">
+
+      <nav className="flex flex-col gap-1 flex-1">
         {menuItems.map((item) => {
           const Icone = item.icone;
           return (
@@ -46,6 +74,16 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      <button
+        onClick={handleClick}
+        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm border-t border-gray-800 mt-2 pt-4"
+      >
+        {email ? <LogOut size={18} /> : <LogIn size={18} />}
+        <span className="truncate">
+          {email ? email : "Entrar"}
+        </span>
+      </button>
     </aside>
   );
 }

@@ -29,6 +29,8 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Agora devolvemos TAMBÉM o cliente Supabase
+  // ESSENCIAL: isso atualiza/revalida o token da sessão
+  await supabase.auth.getUser()
+
   return { supabase, response: supabaseResponse }
 }
