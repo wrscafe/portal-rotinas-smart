@@ -1,18 +1,31 @@
+import Link from "next/link";
+
 interface StatCardProps {
   title: string;
   value: string | number;
   icon: string;
   color: string;
+  href?: string;
+  active?: boolean;
 }
 
-export default function StatCard({ title, value, icon, color }: StatCardProps) {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+export default function StatCard({
+  title,
+  value,
+  icon,
+  color,
+  href,
+  active = false,
+}: StatCardProps) {
+  const conteudo = (
+    <div
+      className={`bg-white rounded-lg shadow-sm border p-6 transition hover:shadow-md ${
+        active ? "border-blue-500 ring-2 ring-blue-200" : "border-gray-200"
+      } ${href ? "cursor-pointer" : ""}`}
+    >
       <div className="flex items-center justify-between mb-4">
         <span className="text-3xl">{icon}</span>
-        <span
-          className={`text-xs font-semibold px-2 py-1 rounded-full ${color}`}
-        >
+        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${color}`}>
           Ativo
         </span>
       </div>
@@ -20,4 +33,10 @@ export default function StatCard({ title, value, icon, color }: StatCardProps) {
       <p className="text-3xl font-bold text-gray-900">{value}</p>
     </div>
   );
+
+  if (href) {
+    return <Link href={href}>{conteudo}</Link>;
+  }
+
+  return conteudo;
 }

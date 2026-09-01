@@ -21,10 +21,13 @@ export default function AtividadesForm() {
 
     // Chama o serviço para salvar no Supabase
     const resultado = await criarAtividade({
-      titulo,
-      descricao,
-      responsavel,
-    });
+  titulo,
+  descricao,
+  responsavel,
+  prioridade: 'Média',
+  status: 'Pendente',
+});
+
 
     if (resultado.sucesso) {
       setMensagem({ tipo: 'sucesso', texto: 'Atividade criada com sucesso!' });

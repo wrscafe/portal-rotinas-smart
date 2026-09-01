@@ -444,3 +444,76 @@ A solução é usar `dynamic()` com `ssr: false`, dizendo ao Next.js: *"esse com
 3. Clica em **"📄 Exportar PDF"**
 4. O sistema gera o PDF no navegador com todos os dados filtrados
 5. Download automático do arquivo `relatorio-atividades-AAAA-MM-DD.pdf`
+
+📄 Documentação — Módulo de Relatórios (Portal Rotinas Smart)
+Visão Geral
+O módulo de Relatórios exibe estatísticas e detalhamento das atividades cadastradas no sistema, com filtro por período, gráficos, tabela de responsáveis, exportação em PDF e lista detalhada de atividades filtrável por status.
+
+📁 Arquivos envolvidos
+
+
+src/
+├── app/
+│   └── relatorios/
+│       └── page.tsx                    ← Página principal (Server Component)
+├── components/
+│   ├── StatCard.tsx                    ← Card clicável de estatística
+│   └── relatorios/
+│       ├── FiltroPeriodo.tsx           ← Filtro de data (início/fim)
+│       ├── GraficoStatus.tsx           ← Gráfico de pizza/barra por status
+│       ├── GraficoPrioridade.tsx       ← Gráfico de barras por prioridade
+│       ├── TabelaResponsaveis.tsx      ← Tabela com totais por responsável
+│       ├── BotaoExportarPDF.tsx        ← Botão que gera relatório em PDF
+│       ├── RelatorioPDF.tsx            ← Layout do documento PDF
+│       └── ListaAtividades.tsx         ← Lista de cards com atividades detalhadas
+🧩 page.tsx — Lógica principal
+Responsabilidades:
+
+Ler searchParams (inicio, fim, status) da URL.
+Consultar o Supabase (tabela atividades), aplicando filtro de período se houver.
+Calcular estatísticas: total, pendentes, emAndamento, concluidas.
+Montar dados para os gráficos (dadosStatus, dadosPrioridade) e para a tabela de responsáveis (dadosResponsaveis).
+Gerar os href dos cards preservando o filtro de período e alternando o filtro de status (clicar de novo remove o filtro).
+Filtrar as atividades exibidas na lista conforme o status selecionado (com caso especial: status === "Total" mostra todas as atividades).
+Ordem de exibição na tela:
+
+
+
+Filtro de Período
+      ↓
+Gráficos (Status + Prioridade)
+      ↓
+Cards de Estatísticas (Total, Pendentes, Em Andamento, Concluídas)
+      ↓
+Tabela de Responsáveis
+      ↓
+Lista de Atividades (aparece somente se um card foi clicado)
+🃏 StatCard.tsx
+Card clicável que:
+
+Recebe title, value, icon, color, href e active.
+Ao clicar, navega para a URL com o status correspondente (via Link do Next.js).
+Fica visualmente destacado (active) quando o filtro está aplicado.
+📋 ListaAtividades.tsx
+Objetivo: exibir as atividades filtradas em formato de cards, com:
+
+Título, descrição, status (badge colorido), prioridade (badge colorido), responsável e data de criação formatada em pt-BR.
+Mensagem "Nenhuma atividade encontrada" quando a lista está vazia.
+Grid responsivo (1 coluna no mobile, 2 no desktop).
+Correção aplicada: o card "Total" antes tentava filtrar por status === "Total" (inexistente no banco), retornando lista vazia. Foi corrigido para exibir todas as atividades nesse caso.
+
+🖨️ BotaoExportarPDF.tsx + RelatorioPDF.tsx
+Geram um PDF com o resumo do relatório (período, totais, tabela de responsáveis e atividades), usando os mesmos dados calculados em page.tsx.
+
+✅ Funcionalidades já testadas e funcionando
+ Filtro por período (data início/fim).
+ Clique nos cards de status → filtra e exibe lista de atividades correspondente.
+ Clique novamente no mesmo card → remove o filtro (alterna on/off).
+ Card "Total" → exibe todas as atividades corretamente.
+ Ordem visual ajustada: Filtro → Gráficos → Cards → Tabela → Lista.
+🎓 Conceitos aprendidos nesta etapa
+Server Components no Next.js (page.tsx roda no servidor, busca dados direto do Supabase).
+searchParams como forma de guardar estado de filtros na URL (bom para compartilhar links e usar botão "voltar" do navegador).
+Renderização condicional ({status && <ListaAtividades ... />}).
+Tratamento de caso especial em lógica de filtro (status === "Total").
+Componentização: cada gráfico/tabela/lista é um componente isolado e reutilizável.
