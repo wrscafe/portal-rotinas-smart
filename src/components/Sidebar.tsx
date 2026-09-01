@@ -26,7 +26,7 @@ const menuItems = [
   { nome: "Checklist Viaturas", href: "/checklist", icone: ClipboardCheck },
   { nome: "Relatórios", href: "/relatorios", icone: BarChart3 },
   { nome: "Solicitações", href: "/solicitacoes", icone: Mail },
-  { nome: "PTs", href: "/pts", icone: Wrench },
+  { nome: "PT", href: "/pt", icone: Wrench },
   { nome: "Treinamentos", href: "/treinamentos", icone: GraduationCap },
   { nome: "RH", href: "/rh", icone: Users },
   { nome: "Indicadores", href: "/indicadores", icone: TrendingUp },

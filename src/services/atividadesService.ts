@@ -1,39 +1,18 @@
 import { createClient } from '@/lib/supabase/client';
-import { Ativo } from '@/types/ativo';
+import { Atividade } from '@/types/atividade';
 
 const supabase = createClient();
 
-// Função para buscar todos os ativos cadastrados
-export async function listarAtivos() {
-  try {
-    const { data, error } = await supabase
-      .from('ativos')
-      .select('*')
-      .order('codigo_interno', { ascending: true });
-
-    if (error) {
-      throw error;
-    }
-
-    return { sucesso: true, dados: data as Ativo[] };
-  } catch (erro) {
-    console.error('Erro ao listar ativos:', erro);
-    return { sucesso: false, erro, dados: [] as Ativo[] };
-  }
-  
-}
-import { Atividade } from '@/types/atividade';
-
-// Tipo com os dados que o formulário envia (sem os campos gerados pelo banco)
+// Tipo com os dados que o formulário envia
+// prioridade e status são opcionais: se não vierem, usamos um valor padrão
 type NovaAtividade = {
   titulo: string;
   descricao: string;
   responsavel: string;
-  prioridade: string;
-  status: string;
+  prioridade?: Atividade['prioridade'];
+  status?: Atividade['status'];
 };
 
-// Função para criar uma nova atividade
 export async function criarAtividade(dados: NovaAtividade) {
   try {
     const { data, error } = await supabase
@@ -43,8 +22,8 @@ export async function criarAtividade(dados: NovaAtividade) {
           titulo: dados.titulo,
           descricao: dados.descricao || null,
           responsavel: dados.responsavel || null,
-          prioridade: dados.prioridade,
-          status: dados.status,
+          prioridade: dados.prioridade ?? 'Média',
+          status: dados.status ?? 'Pendente',
         },
       ])
       .select()

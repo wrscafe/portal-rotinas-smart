@@ -4,21 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { criarAtividade } from "@/services/atividadesService";
+import { Atividade } from "@/types/atividade";
 
 export default function NovaAtividadePage() {
   const router = useRouter();
-  
+
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [responsavel, setResponsavel] = useState("");
-  const [prioridade, setPrioridade] = useState("Média");
-  const [status, setStatus] = useState("Pendente");
+  const [prioridade, setPrioridade] = useState<Atividade["prioridade"]>("Média");
+  const [statusAtividade, setStatusAtividade] = useState<Atividade["status"]>("Pendente");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    
+
     // Limpa erros anteriores
     setErro("");
     setCarregando(true);
@@ -30,7 +31,7 @@ export default function NovaAtividadePage() {
         descricao,
         responsavel,
         prioridade,
-        status,
+        status: statusAtividade,
       });
 
       if (resultado.sucesso) {
@@ -126,7 +127,9 @@ export default function NovaAtividadePage() {
             </label>
             <select
               value={prioridade}
-              onChange={(e) => setPrioridade(e.target.value)}
+              onChange={(e) =>
+                setPrioridade(e.target.value as Atividade["prioridade"])
+              }
               disabled={carregando}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
@@ -141,8 +144,10 @@ export default function NovaAtividadePage() {
               Status
             </label>
             <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              value={statusAtividade}
+              onChange={(e) =>
+                setStatusAtividade(e.target.value as Atividade["status"])
+              }
               disabled={carregando}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
