@@ -8,9 +8,8 @@ export interface PT {
   data_emissao: string;
   data_execucao: string | null;
   data_validade: string | null;
-  status: "Aberta" | "Em Andamento" | "Encerrada" | "Cancelada";
+  status: 'Aberta' | 'Em Andamento' | 'Encerrada' | 'Cancelada';
   usuario_id: string | null;
   data_criacao: string;
   data_atualizacao: string;
 }
-

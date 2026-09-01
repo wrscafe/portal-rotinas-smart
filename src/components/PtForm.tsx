@@ -226,8 +226,8 @@ export default function PtForm({ ptId }: PtFormProps) {
             className="w-full border rounded px-3 py-2"
           >
             <option value="Aberta">Aberta</option>
-            <option value="Em Execução">Em Execução</option>
-            <option value="Concluída">Concluída</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Encerrada">Encerrada</option>
             <option value="Cancelada">Cancelada</option>
           </select>
         </div>
