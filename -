@@ -1,0 +1,218 @@
+[1mdiff --git a/src/app/atividades/[id]/editar/page.tsx b/src/app/atividades/[id]/editar/page.tsx[m
+[1mindex fb3cd07..cc1f936 100644[m
+[1m--- a/src/app/atividades/[id]/editar/page.tsx[m
+[1m+++ b/src/app/atividades/[id]/editar/page.tsx[m
+[36m@@ -3,34 +3,8 @@[m
+ import { useState, useEffect } from "react";[m
+ import Link from "next/link";[m
+ import { useParams, useRouter } from "next/navigation";[m
+[31m-[m
+[31m-// Dados mockados (depois vamos buscar do Supabase)[m
+[31m-const atividadesMock = [[m
+[31m-  {[m
+[31m-    id: "1",[m
+[31m-    titulo: "Revisar documentação do sistema",[m
+[31m-    descricao: "Revisar toda a documentação técnica e atualizar se necessário.",[m
+[31m-    responsavel: "Wagner",[m
+[31m-    prioridade: "Alta",[m
+[31m-    status: "Em Andamento",[m
+[31m-  },[m
+[31m-  {[m
+[31m-    id: "2",[m
+[31m-    titulo: "Configurar ambiente de desenvolvimento",[m
+[31m-    descricao: "Instalar Node.js, VS Code e configurar o projeto.",[m
+[31m-    responsavel: "Wagner",[m
+[31m-    prioridade: "Média",[m
+[31m-    status: "Concluída",[m
+[31m-  },[m
+[31m-  {[m
+[31m-    id: "3",[m
+[31m-    titulo: "Criar tabela de atividades no Supabase",[m
+[31m-    descricao: "Criar a tabela e configurar os relacionamentos.",[m
+[31m-    responsavel: "Wagner",[m
+[31m-    prioridade: "Alta",[m
+[31m-    status: "Pendente",[m
+[31m-  },[m
+[31m-];[m
+[32m+[m[32mimport { buscarAtividadePorId, atualizarAtividade } from "@/services/atividadesService";[m
+[32m+[m[32mimport { Atividade } from "@/types/atividade";[m
+ [m
+ export default function EditarAtividadePage() {[m
+   const params = useParams();[m
+[36m@@ -40,37 +14,54 @@[m [mexport default function EditarAtividadePage() {[m
+   const [titulo, setTitulo] = useState("");[m
+   const [descricao, setDescricao] = useState("");[m
+   const [responsavel, setResponsavel] = useState("");[m
+[31m-  const [prioridade, setPrioridade] = useState("Média");[m
+[31m-  const [status, setStatus] = useState("Pendente");[m
+[32m+[m[32m  const [prioridade, setPrioridade] = useState<Atividade["prioridade"]>("Média");[m
+[32m+[m[32m  const [status, setStatus] = useState<Atividade["status"]>("Pendente");[m
+   const [carregando, setCarregando] = useState(true);[m
+[32m+[m[32m  const [salvando, setSalvando] = useState(false);[m
+[32m+[m[32m  const [erro, setErro] = useState("");[m
+ [m
+[31m-  // Busca os dados da atividade quando a página carrega[m
+[32m+[m[32m  // Busca os dados reais da atividade no Supabase quando a página carrega[m
+   useEffect(() => {[m
+[31m-    const atividade = atividadesMock.find((a) => a.id === id);[m
+[31m-[m
+[31m-    if (atividade) {[m
+[31m-      setTitulo(atividade.titulo);[m
+[31m-      setDescricao(atividade.descricao);[m
+[31m-      setResponsavel(atividade.responsavel);[m
+[31m-      setPrioridade(atividade.prioridade);[m
+[31m-      setStatus(atividade.status);[m
+[32m+[m[32m    async function carregarAtividade() {[m
+[32m+[m[32m      const resultado = await buscarAtividadePorId(id);[m
+[32m+[m
+[32m+[m[32m      if (resultado.sucesso && resultado.dados) {[m
+[32m+[m[32m        const atividade = resultado.dados;[m
+[32m+[m[32m        setTitulo(atividade.titulo);[m
+[32m+[m[32m        setDescricao(atividade.descricao || "");[m
+[32m+[m[32m        setResponsavel(atividade.responsavel || "");[m
+[32m+[m[32m        setPrioridade(atividade.prioridade);[m
+[32m+[m[32m        setStatus(atividade.status);[m
+[32m+[m[32m      } else {[m
+[32m+[m[32m        setErro("Não foi possível carregar a atividade.");[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      setCarregando(false);[m
+     }[m
+ [m
+[31m-    setCarregando(false);[m
+[32m+[m[32m    carregarAtividade();[m
+   }, [id]);[m
+ [m
+[31m-  function handleSubmit(event: React.FormEvent) {[m
+[32m+[m[32m  async function handleSubmit(event: React.FormEvent) {[m
+     event.preventDefault();[m
+[31m-    console.log("Dados atualizados:", {[m
+[31m-      id,[m
+[32m+[m[32m    setSalvando(true);[m
+[32m+[m[32m    setErro("");[m
+[32m+[m
+[32m+[m[32m    const resultado = await atualizarAtividade(id, {[m
+       titulo,[m
+       descricao,[m
+       responsavel,[m
+       prioridade,[m
+       status,[m
+     });[m
+[31m-    alert("Atividade atualizada! (por enquanto só visual)");[m
+[31m-    router.push("/atividades");[m
+[32m+[m
+[32m+[m[32m    setSalvando(false);[m
+[32m+[m
+[32m+[m[32m    if (resultado.sucesso) {[m
+[32m+[m[32m      router.push("/atividades");[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      setErro("Erro ao salvar as alterações. Tente novamente.");[m
+[32m+[m[32m    }[m
+   }[m
+ [m
+   if (carregando) {[m
+[36m@@ -94,6 +85,12 @@[m [mexport default function EditarAtividadePage() {[m
+         </p>[m
+       </div>[m
+ [m
+[32m+[m[32m      {erro && ([m
+[32m+[m[32m        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">[m
+[32m+[m[32m          {erro}[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      )}[m
+[32m+[m
+       <form[m
+         onSubmit={handleSubmit}[m
+         className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6"[m
+[36m@@ -142,7 +139,7 @@[m [mexport default function EditarAtividadePage() {[m
+             </label>[m
+             <select[m
+               value={prioridade}[m
+[31m-              onChange={(e) => setPrioridade(e.target.value)}[m
+[32m+[m[32m              onChange={(e) => setPrioridade(e.target.value as Atividade["prioridade"])}[m
+               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"[m
+             >[m
+               <option value="Alta">🔴 Alta</option>[m
+[36m@@ -157,7 +154,7 @@[m [mexport default function EditarAtividadePage() {[m
+             </label>[m
+             <select[m
+               value={status}[m
+[31m-              onChange={(e) => setStatus(e.target.value)}[m
+[32m+[m[32m              onChange={(e) => setStatus(e.target.value as Atividade["status"])}[m
+               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"[m
+             >[m
+               <option value="Pendente">Pendente</option>[m
+[36m@@ -170,9 +167,10 @@[m [mexport default function EditarAtividadePage() {[m
+         <div className="flex gap-3 pt-4 border-t border-gray-200">[m
+           <button[m
+             type="submit"[m
+[31m-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium"[m
+[32m+[m[32m            disabled={salvando}[m
+[32m+[m[32m            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50"[m
+           >[m
+[31m-            Salvar Alterações[m
+[32m+[m[32m            {salvando ? "Salvando..." : "Salvar Alterações"}[m
+           </button>[m
+           <Link[m
+             href="/atividades"[m
+[1mdiff --git a/src/services/atividadesService.ts b/src/services/atividadesService.ts[m
+[1mindex 945d549..a0db1d0 100644[m
+[1m--- a/src/services/atividadesService.ts[m
+[1m+++ b/src/services/atividadesService.ts[m
+[36m@@ -39,3 +39,56 @@[m [mexport async function criarAtividade(dados: NovaAtividade) {[m
+     return { sucesso: false, erro };[m
+   }[m
+ }[m
+[32m+[m
+[32m+[m[32mexport async function buscarAtividadePorId(id: string) {[m
+[32m+[m[32m  try {[m
+[32m+[m[32m    const { data, error } = await supabase[m
+[32m+[m[32m      .from('atividades')[m
+[32m+[m[32m      .select('*')[m
+[32m+[m[32m      .eq('id', id)[m
+[32m+[m[32m      .single();[m
+[32m+[m
+[32m+[m[32m    if (error) {[m
+[32m+[m[32m      throw error;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    return { sucesso: true, dados: data as Atividade };[m
+[32m+[m[32m  } catch (erro) {[m
+[32m+[m[32m    console.error('Erro ao buscar atividade:', erro);[m
+[32m+[m[32m    return { sucesso: false, erro };[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mtype DadosAtualizacao = {[m
+[32m+[m[32m  titulo: string;[m
+[32m+[m[32m  descricao: string;[m
+[32m+[m[32m  responsavel: string;[m
+[32m+[m[32m  prioridade: Atividade['prioridade'];[m
+[32m+[m[32m  status: Atividade['status'];[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32mexport async function atualizarAtividade(id: string, dados: DadosAtualizacao) {[m
+[32m+[m[32m  try {[m
+[32m+[m[32m    const { data, error } = await supabase[m
+[32m+[m[32m      .from('atividades')[m
+[32m+[m[32m      .update({[m
+[32m+[m[32m        titulo: dados.titulo,[m
+[32m+[m[32m        descricao: dados.descricao || null,[m
+[32m+[m[32m        responsavel: dados.responsavel || null,[m
+[32m+[m[32m        prioridade: dados.prioridade,[m
+[32m+[m[32m        status: dados.status,[m
+[32m+[m[32m      })[m
+[32m+[m[32m      .eq('id', id)[m
+[32m+[m[32m      .select()[m
+[32m+[m[32m      .single();[m
+[32m+[m
+[32m+[m[32m    if (error) {[m
+[32m+[m[32m      throw error;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    return { sucesso: true, dados: data as Atividade };[m
+[32m+[m[32m  } catch (erro) {[m
+[32m+[m[32m    console.error('Erro ao atualizar atividade:', erro);[m
+[32m+[m[32m    return { sucesso: false, erro };[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m

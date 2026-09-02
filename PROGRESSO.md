@@ -517,3 +517,167 @@ searchParams como forma de guardar estado de filtros na URL (bom para compartilh
 Renderização condicional ({status && <ListaAtividades ... />}).
 Tratamento de caso especial em lógica de filtro (status === "Total").
 Componentização: cada gráfico/tabela/lista é um componente isolado e reutilizável.
+------------
+02/09/2026
+## 📄 Resumo da Sessão — Portal Rotinas Smart
+
+### 1. Comandos Git/Terminal
+- Explicado como sair do `git status` (pager): pressionar **`q`**
+
+### 2. Problema de acesso via Codespaces
+- Tentativa de tornar a porta 3000 pública:
+  ```bash
+  gh codespace ports visibility 3000:public -c $CODESPACE_NAME
+  ```
+- Diagnóstico: o servidor Next.js havia caído (`curl http://localhost:3000` retornou erro de conexão)
+- Solução indicada: reiniciar com `npm run dev`
+- **Status**: ainda não resolvido — pausado para retomar depois do almoço
+
+### 3. Conceito aprendido: `.ts` vs `.tsx`
+| Extensão | Uso |
+|----------|-----|
+| `.ts` | Lógica pura (funções, services, tipos) — sem JSX |
+| `.tsx` | Componentes React com JSX/HTML (`page.tsx`, `Button.tsx`) |
+
+---
+
+**Pendência para retomar:** reiniciar o servidor (`npm run dev`) e confirmar se a porta 3000 volta a funcionar no navegador.
+# Changelog - Portal Rotinas Smart
+
+Registro das principais mudanças, decisões técnicas e aprendizados durante o desenvolvimento do projeto.
+
+---
+
+## 2026-09-02 - Cards do Dashboard clicáveis
+
+**O que foi feito:**
+- Adicionada a prop `href` nos componentes `<StatCard />` na página inicial (`app/page.tsx`)
+- Cards "Atividades Pendentes", "Concluídas Hoje" e "PTs em Andamento" agora navegam para suas respectivas páginas
+- Card "Solicitações Abertas" ficou sem `href` (página ainda não existe)
+
+**Arquivos alterados:**
+- `src/app/page.tsx`
+
+**Aprendizado:**
+- O componente `StatCard` já estava preparado para navegação, usando `Link` do Next.js (navegação client-side, sem recarregar a página)
+- Quando `href` não é passado, o componente simplesmente não renderiza o link (comportamento condicional dentro do próprio componente)
+
+---
+
+## 2026-09-02 - Dashboard com dados reais (Atividades Recentes)
+
+**O que foi feito:**
+- Transformado `app/page.tsx` em **Server Component assíncrono**
+- Página passou a buscar as 5 atividades mais recentes direto do Supabase, ordenadas por `data_criacao`
+- Bloco "Atividades Recentes" agora exibe lista real (título, responsável e status com badge colorido) ou a mensagem padrão caso não haja nenhuma atividade
+- Cada item da lista é clicável e leva para a tela de edição da atividade
+
+**Arquivos alterados:**
+- `src/app/page.tsx`
+
+**Aprendizado:**
+- No App Router do Next.js, componentes dentro de `app/` são **Server Components** por padrão e podem ser `async`, buscando dados direto no servidor (sem `useEffect`, sem estado de loading)
+- Existem **dois clientes Supabase diferentes** no projeto:
+  - `lib/supabase/client.ts` → usado em componentes de **browser** (client-side), síncrono
+  - `lib/supabase/server.ts` → usado em **Server Components**, é `async` e trabalha com cookies (sessão do usuário)
+- Por isso, a busca de dados no Dashboard foi feita direto na página (server-side), e não reaproveitando a função do `atividadesService.ts` (que usa o client de browser)
+
+---
+
+## Próximos passos planejados
+- Tornar os números dos cards do Dashboard (12, 5, 3, 2) dinâmicos, vindos do banco
+- Criar página de "Solicitações"
+- Continuar evoluindo os módulos (PTs, Relatórios, Treinamentos, RH, etc.)
+---
+
+## 2026-09-02 - Cards do Dashboard clicáveis
+
+**O que foi feito:**
+- Adicionada a prop `href` nos componentes `<StatCard />` na página inicial (`app/page.tsx`)
+- Cards "Atividades Pendentes", "Concluídas Hoje" e "PTs em Andamento" agora navegam para suas respectivas páginas
+- Card "Solicitações Abertas" ficou sem `href` (página ainda não existe)
+
+**Arquivos alterados:**
+- `src/app/page.tsx`
+
+**Aprendizado:**
+- O `StatCard` já estava preparado para navegação, usando `Link` do Next.js
+- Quando `href` não é passado, o componente não renderiza o link (renderização condicional)
+
+---
+
+## 2026-09-02 - Dashboard com dados reais (Atividades Recentes)
+
+**O que foi feito:**
+- Transformado `app/page.tsx` em **Server Component assíncrono**
+- Página passou a buscar as 5 atividades mais recentes direto do Supabase, ordenadas por `data_criacao`
+- Bloco "Atividades Recentes" agora exibe lista real (título, responsável e badge de status) ou a mensagem padrão caso não haja nenhuma atividade
+- Cada item da lista é clicável e leva para a edição da atividade
+
+**Arquivos alterados:**
+- `src/app/page.tsx`
+
+**Aprendizado:**
+- Componentes dentro de `app/` são **Server Components** por padrão e podem ser `async`, buscando dados direto no servidor (sem `useEffect`, sem loading state)
+- Existem **dois clientes Supabase diferentes**:
+  - `lib/supabase/client.ts` → uso em componentes de browser, síncrono
+  - `lib/supabase/server.ts` → uso em Server Components, `async`, trabalha com cookies (sessão)
+- Por isso a busca no Dashboard foi feita direto na página, sem reaproveitar o `atividadesService.ts`
+
+---
+
+## Próximos passos planejados
+- Tornar os números dos cards do Dashboard (12, 5, 3, 2) dinâmicos, vindos do banco
+- Criar página de "Solicitações"
+- Continuar evoluindo os módulos (PTs, Relatórios, Treinamentos, RH, etc.)
+
+---
+
+## 2026-09-02 - Cards do Dashboard com dados reais (contagem dinâmica)
+
+**O que foi feito:**
+- Substituídos os valores fixos dos cards por contagens reais do Supabase
+- "Atividades Pendentes" → conta registros com `status = 'Pendente'`
+- "Concluídas Hoje" → conta registros com `status = 'Concluída'` e `data_atualizacao` no dia atual
+- "PTs em Andamento" → conta registros da tabela `pts` com `status = 'Aberta'`
+- "Solicitações Abertas" → mantido fixo em `0` (tabela ainda não existe)
+
+**Arquivos alterados:**
+- `src/app/page.tsx`
+
+**Aprendizado:**
+- `.select("*", { count: "exact", head: true })` conta linhas sem baixar os dados — muito mais eficiente que buscar tudo e usar `.length`
+- Uso de `.gte()` e `.lte()` para filtrar por intervalo de data (início e fim do dia atual)
+- Uso de `??` (nullish coalescing) para garantir fallback `0` caso a consulta falhe
+## 📋 Documentação — Módulo Ordens de Serviço (OSM)
+
+### Status atual
+Formulário de criação/edição criado, mas **com erro pendente ao salvar** (INSERT falhando com erro vazio `{}` — provável causa: RLS bloqueando ou schema divergente da tabela `ordens_servico` no Supabase).
+
+### Arquivos criados nesta etapa
+
+**1. `src/services/ordensServicoService.ts`**
+CRUD (listar, buscar por id, criar, atualizar) para a tabela `ordens_servico`, seguindo o padrão do `ptsService.ts`.
+
+**2. `src/components/OsmForm.tsx`**
+Formulário reutilizável para criar/editar OSM. Campos `descricao_realizada`, `pecas_utilizadas` e `status_assinatura` só aparecem em modo edição.
+
+**3. `src/app/ordens-servico/nova/page.tsx`**
+Página que renderiza `OsmForm` sem `osmId` (modo criação).
+
+**4. `src/app/ordens-servico/[id]/editar/page.tsx`**
+Página que renderiza `OsmForm` com `osmId` (modo edição), usando `params` assíncrono (Next.js 15+).
+
+### Já existentes (base usada como referência)
+- `src/types/ordemServico.ts` — tipos `OrdemServico`, `Prioridade`, `StatusAssinatura`
+- `src/app/ordens-servico/page.tsx` — listagem em tabela
+
+### ⚠️ Pendência para a próxima sessão
+**Erro:** `Erro ao criar ordem de serviço: {}` no INSERT.
+
+**Próximos passos ao retomar:**
+1. Confirmar o SQL usado para criar a tabela `ordens_servico` no Supabase.
+2. Verificar se **RLS está habilitado** e se existe policy de `INSERT` para o usuário autenticado.
+3. Confirmar se os nomes de colunas da tabela batem exatamente com o `types/ordemServico.ts` e com o `insert()` do service.
+
+Quando voltar, é só colar o SQL da tabela que eu já sigo direto para o diagnóstico.
