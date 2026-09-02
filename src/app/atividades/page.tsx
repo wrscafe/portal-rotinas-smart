@@ -38,6 +38,36 @@ function PrioridadeBadge({ prioridade }: { prioridade: string }) {
   );
 }
 
+// Formata a data para exibição no título da seção (ex: "02 de setembro de 2026")
+function formatarDataSecao(data: string) {
+  if (data === "sem-data") return "Sem data de criação";
+
+  return new Date(data).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+// Agrupa as atividades por data de criação (só a parte da data, sem hora)
+function agruparPorData(atividades: Atividade[]) {
+  const grupos: Record<string, Atividade[]> = {};
+
+  for (const atividade of atividades) {
+    // Se data_criacao vier nula, usamos "sem-data" como chave para não quebrar
+    const chave = atividade.data_criacao
+      ? atividade.data_criacao.split("T")[0]
+      : "sem-data";
+
+    if (!grupos[chave]) {
+      grupos[chave] = [];
+    }
+    grupos[chave].push(atividade);
+  }
+
+  return grupos;
+}
+
 export default async function AtividadesPage() {
   const supabase = await createClient();
 
@@ -51,6 +81,8 @@ export default async function AtividadesPage() {
   }
 
   const listaAtividades: Atividade[] = atividades ?? [];
+  const grupos = agruparPorData(listaAtividades);
+  const datasOrdenadas = Object.keys(grupos).sort((a, b) => b.localeCompare(a));
 
   return (
     <div className="max-w-6xl">
@@ -69,61 +101,76 @@ export default async function AtividadesPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Título
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Responsável
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Prioridade
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Data Prevista
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Ações
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {listaAtividades.map((atividade) => (
-              <tr key={atividade.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                  {atividade.titulo}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {atividade.responsavel}
-                </td>
-                <td className="px-6 py-4">
-                  <StatusBadge status={atividade.status} />
-                </td>
-                <td className="px-6 py-4">
-                  <PrioridadeBadge prioridade={atividade.prioridade} />
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {atividade.data_prevista}
-                </td>
-                <td className="px-6 py-4">
-                  <Link
-                    href={`/atividades/${atividade.id}/editar`}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    Editar
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {datasOrdenadas.map((data) => (
+        <div key={data} className="mb-8">
+          {/* Título da seção com a data */}
+          <h2 className="text-sm font-semibold text-gray-700 uppercase mb-3">
+            {formatarDataSecao(data)}
+          </h2>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Título
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Responsável
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Prioridade
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Data de Criação
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {grupos[data].map((atividade) => (
+                  <tr key={atividade.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      {atividade.titulo}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {atividade.responsavel}
+                    </td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={atividade.status} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <PrioridadeBadge prioridade={atividade.prioridade} />
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {atividade.data_criacao
+                        ? new Date(atividade.data_criacao).toLocaleDateString("pt-BR")
+                        : "—"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/atividades/${atividade.id}/editar`}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        Editar
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+
+      {datasOrdenadas.length === 0 && (
+        <p className="text-sm text-gray-500">Nenhuma atividade encontrada.</p>
+      )}
     </div>
   );
 }
