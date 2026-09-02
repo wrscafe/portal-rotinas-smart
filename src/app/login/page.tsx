@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fazerLogin } from "@/services/authService";
 
@@ -78,6 +79,15 @@ export default function LoginPage() {
             />
           </div>
 
+          <div className="text-right">
+            <Link
+              href="/esqueci-senha"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Esqueci minha senha
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={carregando}
@@ -90,4 +100,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

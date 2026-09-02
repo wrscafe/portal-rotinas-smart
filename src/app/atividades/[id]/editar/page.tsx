@@ -3,34 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-
-// Dados mockados (depois vamos buscar do Supabase)
-const atividadesMock = [
-  {
-    id: "1",
-    titulo: "Revisar documentação do sistema",
-    descricao: "Revisar toda a documentação técnica e atualizar se necessário.",
-    responsavel: "Wagner",
-    prioridade: "Alta",
-    status: "Em Andamento",
-  },
-  {
-    id: "2",
-    titulo: "Configurar ambiente de desenvolvimento",
-    descricao: "Instalar Node.js, VS Code e configurar o projeto.",
-    responsavel: "Wagner",
-    prioridade: "Média",
-    status: "Concluída",
-  },
-  {
-    id: "3",
-    titulo: "Criar tabela de atividades no Supabase",
-    descricao: "Criar a tabela e configurar os relacionamentos.",
-    responsavel: "Wagner",
-    prioridade: "Alta",
-    status: "Pendente",
-  },
-];
+import { buscarAtividadePorId, atualizarAtividade } from "@/services/atividadesService";
+import { Atividade } from "@/types/atividade";
 
 export default function EditarAtividadePage() {
   const params = useParams();
@@ -40,37 +14,54 @@ export default function EditarAtividadePage() {
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [responsavel, setResponsavel] = useState("");
-  const [prioridade, setPrioridade] = useState("Média");
-  const [status, setStatus] = useState("Pendente");
+  const [prioridade, setPrioridade] = useState<Atividade["prioridade"]>("Média");
+  const [status, setStatus] = useState<Atividade["status"]>("Pendente");
   const [carregando, setCarregando] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
 
-  // Busca os dados da atividade quando a página carrega
+  // Busca os dados reais da atividade no Supabase quando a página carrega
   useEffect(() => {
-    const atividade = atividadesMock.find((a) => a.id === id);
+    async function carregarAtividade() {
+      const resultado = await buscarAtividadePorId(id);
 
-    if (atividade) {
-      setTitulo(atividade.titulo);
-      setDescricao(atividade.descricao);
-      setResponsavel(atividade.responsavel);
-      setPrioridade(atividade.prioridade);
-      setStatus(atividade.status);
+      if (resultado.sucesso && resultado.dados) {
+        const atividade = resultado.dados;
+        setTitulo(atividade.titulo);
+        setDescricao(atividade.descricao || "");
+        setResponsavel(atividade.responsavel || "");
+        setPrioridade(atividade.prioridade);
+        setStatus(atividade.status);
+      } else {
+        setErro("Não foi possível carregar a atividade.");
+      }
+
+      setCarregando(false);
     }
 
-    setCarregando(false);
+    carregarAtividade();
   }, [id]);
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    console.log("Dados atualizados:", {
-      id,
+    setSalvando(true);
+    setErro("");
+
+    const resultado = await atualizarAtividade(id, {
       titulo,
       descricao,
       responsavel,
       prioridade,
       status,
     });
-    alert("Atividade atualizada! (por enquanto só visual)");
-    router.push("/atividades");
+
+    setSalvando(false);
+
+    if (resultado.sucesso) {
+      router.push("/atividades");
+    } else {
+      setErro("Erro ao salvar as alterações. Tente novamente.");
+    }
   }
 
   if (carregando) {
@@ -93,6 +84,12 @@ export default function EditarAtividadePage() {
           Atualize os dados da atividade #{id}
         </p>
       </div>
+
+      {erro && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          {erro}
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -142,7 +139,7 @@ export default function EditarAtividadePage() {
             </label>
             <select
               value={prioridade}
-              onChange={(e) => setPrioridade(e.target.value)}
+              onChange={(e) => setPrioridade(e.target.value as Atividade["prioridade"])}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Alta">🔴 Alta</option>
@@ -157,7 +154,7 @@ export default function EditarAtividadePage() {
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => setStatus(e.target.value as Atividade["status"])}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Pendente">Pendente</option>
@@ -170,9 +167,10 @@ export default function EditarAtividadePage() {
         <div className="flex gap-3 pt-4 border-t border-gray-200">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+            disabled={salvando}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50"
           >
-            Salvar Alterações
+            {salvando ? "Salvando..." : "Salvar Alterações"}
           </button>
           <Link
             href="/atividades"

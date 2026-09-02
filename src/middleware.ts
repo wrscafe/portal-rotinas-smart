@@ -31,16 +31,22 @@ export async function middleware(request: NextRequest) {
   // Verifica se existe um usuário logado
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Rotas que podem ser acessadas sem estar logado
+  const rotasPublicas = ['/login', '/esqueci-senha', '/redefinir-senha']
+  const isRotaPublica = rotasPublicas.some((rota) =>
+    request.nextUrl.pathname.startsWith(rota)
+  )
+
   const isLoginPage = request.nextUrl.pathname.startsWith('/login')
 
-  // Se NÃO está logado e tenta acessar qualquer página que não seja /login
-  if (!user && !isLoginPage) {
+  // Se NÃO está logado e tenta acessar qualquer página que não seja pública
+  if (!user && !isRotaPublica) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Se JÁ está logado e tenta acessar /login, manda pro dashboard
+  // Se JÁ está logado e tenta acessar /login, manda pro dashboard (raiz)
   if (user && isLoginPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   return response
