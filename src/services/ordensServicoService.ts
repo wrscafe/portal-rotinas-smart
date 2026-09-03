@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { OrdemServico } from '@/types/ordemServico';
 
+
 const supabase = createClient();
 
 type NovaOrdemServico = {

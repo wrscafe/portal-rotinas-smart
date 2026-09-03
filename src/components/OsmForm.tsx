@@ -6,6 +6,7 @@ import {
   criarOrdemServico,
   atualizarOrdemServico,
   buscarOrdemServicoPorId,
+  deletarOrdemServico,
 } from '@/services/ordensServicoService';
 import { OrdemServico } from '@/types/ordemServico';
 
@@ -30,7 +31,9 @@ export default function OsmForm({ osmId }: OsmFormProps) {
   );
 
   // Estados de controle
+  
   const [carregando, setCarregando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
   const [carregandoDados, setCarregandoDados] = useState(modoEdicao);
   const [mensagem, setMensagem] = useState<{ tipo: 'sucesso' | 'erro'; texto: string } | null>(
     null
@@ -78,7 +81,7 @@ export default function OsmForm({ osmId }: OsmFormProps) {
       pecas_utilizadas: pecasUtilizadas || null,
       status_assinatura: statusAssinatura,
     };
-
+    
     const resultado = modoEdicao
       ? await atualizarOrdemServico(osmId!, dados)
       : await criarOrdemServico(dados);
@@ -112,6 +115,26 @@ export default function OsmForm({ osmId }: OsmFormProps) {
     }
 
     setCarregando(false);
+  }
+
+  async function handleExcluir() {
+    const confirmou = window.confirm(
+      'Tem certeza que deseja excluir esta OSM? Essa ação não pode ser desfeita.'
+    );
+
+    if (!confirmou) return;
+
+    setExcluindo(true);
+    setMensagem(null);
+
+    const resultado = await deletarOrdemServico(osmId!);
+
+    if (resultado.sucesso) {
+      router.push('/ordens-servico');
+    } else {
+      setMensagem({ tipo: 'erro', texto: 'Erro ao excluir OSM. Tente novamente.' });
+      setExcluindo(false);
+    }
   }
 
   if (carregandoDados) {
@@ -244,13 +267,26 @@ export default function OsmForm({ osmId }: OsmFormProps) {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={carregando}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-      >
-        {carregando ? 'Salvando...' : 'Salvar'}
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={carregando || excluindo}
+          className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          {carregando ? 'Salvando...' : 'Salvar'}
+        </button>
+
+        {modoEdicao && (
+          <button
+            type="button"
+            onClick={handleExcluir}
+            disabled={carregando || excluindo}
+            className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 disabled:bg-gray-400"
+          >
+            {excluindo ? 'Excluindo...' : 'Excluir'}
+          </button>
+        )}
+      </div>
     </form>
   );
 }

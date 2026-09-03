@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Rotas que podem ser acessadas sem estar logado
-  const rotasPublicas = ['/login', '/esqueci-senha', '/redefinir-senha']
+  const rotasPublicas = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha']
   const isRotaPublica = rotasPublicas.some((rota) =>
     request.nextUrl.pathname.startsWith(rota)
   )
