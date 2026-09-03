@@ -64,7 +64,7 @@ export async function criarOrdemServico(dados: NovaOrdemServico) {
           descricao_solicitada: dados.descricao_solicitada,
           descricao_realizada: dados.descricao_realizada || null,
           pecas_utilizadas: dados.pecas_utilizadas || null,
-          status_assinatura: dados.status_assinatura ?? 'Aguardando Assinatura',
+          status_assinatura: dados.status_assinatura || 'Aguardando Assinatura',
         },
       ])
       .select()
@@ -77,11 +77,14 @@ export async function criarOrdemServico(dados: NovaOrdemServico) {
     return { sucesso: true, dados: data as OrdemServico };
   } catch (erro) {
     console.error('Erro ao criar ordem de serviço:', erro);
-    return { sucesso: false, erro };
+    return { sucesso: false, erro, dados: null };
   }
 }
 
-export async function atualizarOrdemServico(id: string, dados: NovaOrdemServico) {
+export async function atualizarOrdemServico(
+  id: string,
+  dados: Partial<NovaOrdemServico>
+) {
   try {
     const { data, error } = await supabase
       .from('ordens_servico')
@@ -91,8 +94,8 @@ export async function atualizarOrdemServico(id: string, dados: NovaOrdemServico)
         equipamento: dados.equipamento,
         prioridade: dados.prioridade,
         descricao_solicitada: dados.descricao_solicitada,
-        descricao_realizada: dados.descricao_realizada || null,
-        pecas_utilizadas: dados.pecas_utilizadas || null,
+        descricao_realizada: dados.descricao_realizada ?? null,
+        pecas_utilizadas: dados.pecas_utilizadas ?? null,
         status_assinatura: dados.status_assinatura,
       })
       .eq('id', id)
@@ -100,18 +103,30 @@ export async function atualizarOrdemServico(id: string, dados: NovaOrdemServico)
       .single();
 
     if (error) {
-      console.error('Detalhes do erro Supabase:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      });
       throw error;
     }
 
     return { sucesso: true, dados: data as OrdemServico };
   } catch (erro) {
     console.error('Erro ao atualizar ordem de serviço:', erro);
+    return { sucesso: false, erro, dados: null };
+  }
+}
+
+export async function deletarOrdemServico(id: string) {
+  try {
+    const { error } = await supabase
+      .from('ordens_servico')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+
+    return { sucesso: true };
+  } catch (erro) {
+    console.error('Erro ao deletar ordem de serviço:', erro);
     return { sucesso: false, erro };
   }
 }
