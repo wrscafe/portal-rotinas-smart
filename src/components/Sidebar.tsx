@@ -15,6 +15,7 @@ import {
   Users,
   TrendingUp,
   Settings,
+  Calendar,
   LogIn,
   LogOut,
   Menu,
@@ -26,6 +27,7 @@ import { fazerLogout } from "@/services/authService";
 const menuItems = [
   { nome: "Dashboard", href: "/", icone: LayoutDashboard },
   { nome: "Atividades", href: "/atividades", icone: ClipboardList },
+  { nome: "Programação", href: "/programacao", icone: Calendar },
   { nome: "Checklist Viaturas", href: "/checklist", icone: ClipboardCheck },
   { nome: "Relatórios", href: "/relatorios", icone: BarChart3 },
   { nome: "Solicitações", href: "/solicitacoes", icone: Mail },
