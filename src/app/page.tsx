@@ -6,6 +6,17 @@ import Link from "next/link";
 export default async function Home() {
   const supabase = await createClient();
 
+  // Busca o usuário autenticado e o seu nome na tabela "usuarios"
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data: usuarioLogado } = await supabase
+    .from("usuarios")
+    .select("nome")
+    .eq("id", user?.id)
+    .single();
+
+  const primeiroNome = usuarioLogado?.nome?.split(" ")[0] ?? "";
+
   // Busca as 5 atividades mais recentes
   const { data: atividadesRecentes } = await supabase
     .from("atividades")
@@ -41,7 +52,7 @@ export default async function Home() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-500 mt-1">
-          Bem-vindo ao Portal Rotinas Smart, Wagner!
+          Bem-vindo ao Portal Rotinas Smart{primeiroNome && `, ${primeiroNome}`}!
         </p>
       </div>
 
