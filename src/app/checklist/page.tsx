@@ -15,6 +15,33 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// Formata a data para exibição no título da seção (ex: "02 de setembro de 2026")
+function formatarDataSecao(data: string) {
+  if (data === "sem-data") return "Sem data";
+
+  return new Date(data).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+// Agrupa os checklists por data (campo "data", sem considerar a hora)
+function agruparPorData(checklists: ChecklistViatura[]) {
+  const grupos: Record<string, ChecklistViatura[]> = {};
+
+  for (const c of checklists) {
+    const chave = c.data ? c.data.split("T")[0] : "sem-data";
+
+    if (!grupos[chave]) {
+      grupos[chave] = [];
+    }
+    grupos[chave].push(c);
+  }
+
+  return grupos;
+}
+
 export default async function ChecklistPage() {
   const supabase = await createClient();
 
@@ -28,44 +55,74 @@ export default async function ChecklistPage() {
     console.error("Erro ao buscar checklists:", error.message);
   }
 
+  const listaChecklists: ChecklistViatura[] = checklists ?? [];
+  const grupos = agruparPorData(listaChecklists);
+  const datasOrdenadas = Object.keys(grupos).sort((a, b) => b.localeCompare(a));
+
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Checklist de Viaturas</h1>
+    <div className="max-w-6xl">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Checklist de Viaturas</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Acompanhe os checklists realizados por data
+          </p>
+        </div>
         <Link
           href="/checklist/novo"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           + Novo Checklist
         </Link>
       </div>
 
-      <table className="w-full bg-white rounded-lg shadow">
-        <thead>
-          <tr className="border-b text-left text-sm text-gray-500">
-            <th className="p-3">Data</th>
-            <th className="p-3">Viatura</th>
-            <th className="p-3">Motorista</th>
-            <th className="p-3">Status</th>
-            <th className="p-3">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {checklists?.map((c: ChecklistViatura) => (
-            <tr key={c.id} className="border-b hover:bg-gray-50">
-              <td className="p-3">{new Date(c.data).toLocaleDateString('pt-BR')}</td>
-              <td className="p-3 font-medium">{c.viatura}</td>
-              <td className="p-3">{c.motorista}</td>
-              <td className="p-3"><StatusBadge status={c.status_geral} /></td>
-              <td className="p-3">
-                <Link href={`/checklist/${c.id}`} className="text-blue-600 hover:underline">
-                  Ver detalhes
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {datasOrdenadas.map((data) => (
+        <div key={data} className="mb-8">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase mb-3">
+            {formatarDataSecao(data)}
+          </h2>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr className="text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3">Viatura</th>
+                  <th className="px-6 py-3">Motorista</th>
+                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {grupos[data].map((c) => (
+                  <tr key={c.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      {c.viatura}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {c.motorista}
+                    </td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={c.status_geral} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/checklist/${c.id}`}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        Ver detalhes
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+
+      {datasOrdenadas.length === 0 && (
+        <p className="text-sm text-gray-500">Nenhum checklist encontrado.</p>
+      )}
     </div>
   );
 }

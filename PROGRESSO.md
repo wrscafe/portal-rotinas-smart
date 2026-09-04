@@ -681,3 +681,18 @@ Página que renderiza `OsmForm` com `osmId` (modo edição), usando `params` ass
 3. Confirmar se os nomes de colunas da tabela batem exatamente com o `types/ordemServico.ts` e com o `insert()` do service.
 
 Quando voltar, é só colar o SQL da tabela que eu já sigo direto para o diagnóstico.
+# Changelog
+
+Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
+
+## [Não lançado]
+
+### Corrigido
+- **Autenticação**: removida instância duplicada do cliente Supabase que causava o
+  aviso "Multiple GoTrueClient instances". O `authService.ts` agora usa o cliente
+  padrão do projeto (`src/lib/supabase/client.ts`) em vez de criar uma instância
+  própria em `src/lib/supabase.ts` (arquivo removido).
+- **Middleware**: a rota `/cadastro` não estava na lista de rotas públicas em
+  `src/middleware.ts`, então usuários não autenticados eram redirecionados
+  para `/login` ao tentar acessar a tela de cadastro. Rota adicionada à lista
+  `rotasPublicas`.

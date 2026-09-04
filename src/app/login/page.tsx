@@ -64,6 +64,15 @@ export default function LoginPage() {
           />
         </div>
 
+        <div className="text-right">
+          <a
+            href="/esqueci-senha"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Esqueci minha senha
+          </a>
+        </div>
+
         {erro && <p className="text-sm text-red-600">{erro}</p>}
 
         <button

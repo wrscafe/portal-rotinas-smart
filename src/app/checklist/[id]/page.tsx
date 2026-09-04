@@ -1,5 +1,7 @@
+// src/app/checklist/[id]/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import BotaoExportarPDF from "@/components/checklist/BotaoExportarPDF";
+import ChecklistPreview from "@/components/checklist/ChecklistPreview";
 import { ChecklistViatura } from "@/types/checklist";
 
 export default async function ChecklistDetalhePage({
@@ -25,11 +27,13 @@ export default async function ChecklistDetalhePage({
   }
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-8 max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Checklist — {checklist.viatura}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Checklist — {checklist.viatura}</h1>
         <BotaoExportarPDF checklist={checklist as ChecklistViatura} />
       </div>
+
+      <ChecklistPreview checklist={checklist as ChecklistViatura} />
     </div>
   );
 }
