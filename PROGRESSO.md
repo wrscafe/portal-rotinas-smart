@@ -696,3 +696,63 @@ Todas as mudanças relevantes deste projeto serão documentadas neste arquivo.
   `src/middleware.ts`, então usuários não autenticados eram redirecionados
   para `/login` ao tentar acessar a tela de cadastro. Rota adicionada à lista
   `rotasPublicas`.
+# 📄 Documentação — Preview de Checklist na Página de Detalhe
+
+**Data:** 04/09/2026
+**Módulo:** Checklist de Viaturas
+
+## 🎯 Objetivo
+
+Exibir o conteúdo do checklist diretamente na tela (página de detalhe), sem precisar baixar o PDF para visualizar as informações.
+
+## 🧩 Problema identificado
+
+A página `/checklist/[id]` só exibia o título da viatura e o botão de exportar PDF — nenhum dado do checklist era mostrado na tela.
+
+## ✅ Solução implementada
+
+Criado um componente de **preview em HTML/Tailwind** que replica visualmente o conteúdo do PDF, exibido acima do botão de exportação.
+
+### Arquivos criados
+
+**`src/components/checklist/ChecklistPreview.tsx`**
+- Componente client-safe que recebe um objeto `ChecklistViatura` e renderiza:
+  - Cabeçalho com status geral (cor dinâmica: verde/amarelo/vermelho)
+  - Número do relatório
+  - Seções: Dados Gerais, Níveis, Luzes Dianteiras, Luzes Traseiras, Verificações Adicionais, Observações
+- Um subcomponente interno `Secao` foi criado para evitar repetição de markup (card com título + corpo), aplicado nas 6 seções.
+
+### Arquivos alterados
+
+**`src/app/checklist/[id]/page.tsx`**
+- Importado o novo componente `ChecklistPreview`
+- Adicionado `<ChecklistPreview checklist={...} />` abaixo do cabeçalho, antes mantendo o `BotaoExportarPDF` intacto
+- Ajustado layout para `max-w-3xl mx-auto` (melhor legibilidade)
+
+## 🏗️ Decisões técnicas
+
+| Decisão | Motivo |
+|---|---|
+| Preview em HTML/Tailwind (não `PDFViewer`) | Mais leve, rápido e sem dependência de iframe pesado do `react-pdf` |
+| Componente `Secao` reutilizável | Evita duplicação de código (Clean Code) |
+| Cores de status via função `getStatusStyle` | Padroniza a lógica de cor conforme `status_geral` (Retida / Ressalva / Liberada) |
+
+## 🧪 Como testar
+
+1. `npm run dev`
+2. Acessar `/checklist`
+3. Clicar em "Ver detalhes" de qualquer registro
+4. Verificar que aparecem todas as seções do checklist na tela
+5. Clicar em "📄 Exportar PDF" e confirmar que o PDF continua funcionando normalmente
+
+## 📦 Commit
+
+```
+feat: adiciona preview do checklist na página de detalhe
+```
+
+## 📌 Próximos passos sugeridos
+
+- Adicionar loading state (skeleton) enquanto busca dados no Supabase
+- Tratar erro de forma mais visual (não só texto puro)
+- Avaliar exibir foto/assinatura no preview, se existirem no schema

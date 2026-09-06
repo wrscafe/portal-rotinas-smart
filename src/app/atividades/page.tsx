@@ -1,22 +1,22 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { Atividade } from "@/types/atividade";
+  import Link from "next/link";
+  import { createClient } from "@/lib/supabase/server";
+  import { Atividade } from "@/types/atividade";
 
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    Pendente: "bg-yellow-100 text-yellow-800",
-    "Em Andamento": "bg-blue-100 text-blue-800",
-    Concluída: "bg-green-100 text-green-800",
-  };
+  function StatusBadge({ status }: { status: string }) {
+    const styles: Record<string, string> = {
+      Pendente: "bg-yellow-100 text-yellow-800",
+      "Em Andamento": "bg-blue-100 text-blue-800",
+      Concluída: "bg-green-100 text-green-800",
+    };
 
-  return (
-    <span
-      className={`px-2 py-1 text-xs font-medium rounded-full ${
-        styles[status] ?? "bg-gray-100 text-gray-800"
-      }`}
-    >
-      {status}
-    </span>
+    return (
+      <span
+        className={`px-2 py-1 text-xs font-medium rounded-full ${
+          styles[status] ?? "bg-gray-100 text-gray-800"
+        }`}
+      >
+        {status}
+      </span>
   );
 }
 
@@ -54,7 +54,6 @@ function agruparPorData(atividades: Atividade[]) {
   const grupos: Record<string, Atividade[]> = {};
 
   for (const atividade of atividades) {
-    // Se data_criacao vier nula, usamos "sem-data" como chave para não quebrar
     const chave = atividade.data_criacao
       ? atividade.data_criacao.split("T")[0]
       : "sem-data";
@@ -70,6 +69,16 @@ function agruparPorData(atividades: Atividade[]) {
 
 export default async function AtividadesPage() {
   const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data: usuarioLogado } = await supabase
+    .from("usuarios")
+    .select("papel")
+    .eq("id", user?.id)
+    .single();
+
+  const podeEditar = usuarioLogado?.papel !== "visitante";
 
   const { data: atividades, error } = await supabase
     .from("atividades")
@@ -93,17 +102,18 @@ export default async function AtividadesPage() {
             Gerencie as atividades do seu setor
           </p>
         </div>
-        <Link
-          href="/atividades/nova"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-        >
-          + Nova Atividade
-        </Link>
+        {podeEditar && (
+          <Link
+            href="/atividades/nova"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          >
+            + Nova Atividade
+          </Link>
+        )}
       </div>
 
       {datasOrdenadas.map((data) => (
         <div key={data} className="mb-8">
-          {/* Título da seção com a data */}
           <h2 className="text-sm font-semibold text-gray-700 uppercase mb-3">
             {formatarDataSecao(data)}
           </h2>
@@ -127,9 +137,11 @@ export default async function AtividadesPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Data de Criação
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Ações
-                  </th>
+                  {podeEditar && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Ações
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -152,14 +164,16 @@ export default async function AtividadesPage() {
                         ? new Date(atividade.data_criacao).toLocaleDateString("pt-BR")
                         : "—"}
                     </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/atividades/${atividade.id}/editar`}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                      >
-                        Editar
-                      </Link>
-                    </td>
+                    {podeEditar && (
+                      <td className="px-6 py-4">
+                        <Link
+                          href={`/atividades/${atividade.id}/editar`}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        >
+                          Editar
+                        </Link>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -174,3 +188,4 @@ export default async function AtividadesPage() {
     </div>
   );
 }
+
