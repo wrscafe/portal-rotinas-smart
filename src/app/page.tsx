@@ -2,6 +2,7 @@ import StatCard from "@/components/StatCard";
 import { createClient } from "@/lib/supabase/server";
 import { Atividade } from "@/types/atividade";
 import Link from "next/link";
+import ModuloCard from "@/components/ModuloCard";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -47,6 +48,19 @@ export default async function Home() {
     .select("*", { count: "exact", head: true })
     .eq("status", "Aberta");
 
+  // Lista de módulos do sistema, usada para gerar os atalhos da Dashboard
+  const modulos = [
+    { titulo: "Atividades", icon: "📋", href: "/atividades", color: "bg-yellow-100 text-yellow-700" },
+    { titulo: "Programação", icon: "📅", href: "/programacao", color: "bg-blue-100 text-blue-700" },
+    { titulo: "Checklist Viaturas", icon: "🚗", href: "/checklist", color: "bg-green-100 text-green-700" },
+    { titulo: "Checklist Motor", icon: "⚙️", href: "/checklist-motor", color: "bg-orange-100 text-orange-700" },
+    { titulo: "Relatórios", icon: "📊", href: "/relatorios", color: "bg-purple-100 text-purple-700" },
+    { titulo: "Solicitações", icon: "📨", href: "/solicitacoes", color: "bg-pink-100 text-pink-700" },
+    { titulo: "PT", icon: "🔧", href: "/pt", color: "bg-red-100 text-red-700" },
+    { titulo: "Ordens de Serviço", icon: "🛠️", href: "/ordens-servico", color: "bg-indigo-100 text-indigo-700" },
+    { titulo: "Treinamentos", icon: "🎓", href: "/treinamentos", color: "bg-teal-100 text-teal-700" },
+  ];
+
   return (
     <div>
       <div className="mb-8">
@@ -84,6 +98,21 @@ export default async function Home() {
           color="bg-purple-100 text-purple-700"
           href="/pt"
         />
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Acessar Módulos</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {modulos.map((modulo) => (
+            <ModuloCard
+              key={modulo.href}
+              titulo={modulo.titulo}
+              icon={modulo.icon}
+              href={modulo.href}
+              color={modulo.color}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
