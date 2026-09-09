@@ -756,3 +756,31 @@ feat: adiciona preview do checklist na página de detalhe
 - Adicionar loading state (skeleton) enquanto busca dados no Supabase
 - Tratar erro de forma mais visual (não só texto puro)
 - Avaliar exibir foto/assinatura no preview, se existirem no schema
+
+# Changelog — Portal Rotinas Smart
+
+## [Impressão do Checklist de Motor] — 09/09/2026
+
+### Objetivo
+Ajustar a impressão da página de detalhes do Checklist de Motor para
+que fique limpa, profissional e com a logo da empresa, sem elementos
+de navegação (sidebar, botões).
+
+### Alterações
+
+**1. `src/components/Sidebar.tsx`**
+- Adicionada a classe `print:hidden` no botão hambúrguer, no overlay
+  mobile e na tag `<aside>` da sidebar.
+- Motivo: a sidebar não deve aparecer quando o usuário imprime a página.
+
+**2. `src/app/layout.tsx`**
+- Trocado `p-4 pt-16 md:p-8` por `p-4 pt-16 md:p-8 print:p-0` na tag `<main>`.
+- Motivo: remover o espaço em branco reservado para o botão hambúrguer
+  (que só existe no mobile) na hora da impressão.
+
+**3. `src/app/checklist-motor/[id]/page.tsx`**
+- Adicionado bloco de logo visível **somente na impressão**:
+  ```tsx
+  <div className="hidden print:flex print:justify-center print:mb-6">
+    <img src="/logo_smart_redonda.png" alt="Logo" className="h-16" />
+  </div>

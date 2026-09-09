@@ -20,15 +20,18 @@ import {
   LogOut,
   Menu,
   X,
+  Gauge,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { fazerLogout } from "@/services/authService";
+
 
 const menuItems = [
   { nome: "Dashboard", href: "/", icone: LayoutDashboard },
   { nome: "Atividades", href: "/atividades", icone: ClipboardList },
   { nome: "Programação", href: "/programacao", icone: Calendar },
   { nome: "Checklist Viaturas", href: "/checklist", icone: ClipboardCheck },
+  { nome: "Checklist Motor", href: "/checklist-motor", icone: Gauge },
   { nome: "Relatórios", href: "/relatorios", icone: BarChart3 },
   { nome: "Solicitações", href: "/solicitacoes", icone: Mail },
   { nome: "PT", href: "/pt", icone: Wrench },
@@ -64,29 +67,29 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Botão hambúrguer - só aparece no mobile (some a partir de md:) */}
+      {/* Botão hambúrguer - só aparece no mobile (some a partir de md:) - não imprime */}
       <button
         onClick={() => setAberto(true)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-gray-900 text-white p-2 rounded-lg shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-50 bg-gray-900 text-white p-2 rounded-lg shadow-lg print:hidden"
         aria-label="Abrir menu"
       >
         <Menu size={22} />
       </button>
 
-      {/* Overlay escuro - só aparece quando o menu está aberto no mobile */}
+      {/* Overlay escuro - só aparece quando o menu está aberto no mobile - não imprime */}
       {aberto && (
         <div
           onClick={() => setAberto(false)}
-          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          className="md:hidden fixed inset-0 bg-black/50 z-40 print:hidden"
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - não imprime */}
       <aside
         className={`
           fixed md:static top-0 left-0 h-screen md:min-h-screen w-64
           bg-gray-900 text-gray-100 p-4 flex flex-col z-50
-          transform transition-transform duration-300
+          transform transition-transform duration-300 print:hidden
           ${aberto ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
         `}
