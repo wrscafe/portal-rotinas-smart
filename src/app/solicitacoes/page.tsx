@@ -9,7 +9,8 @@ type SolicitacaoComCriador = Solicitacao & {
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     Pendente: "bg-yellow-100 text-yellow-800",
-    Aprovada: "bg-green-100 text-green-800",
+    "Em andamento": "bg-blue-100 text-blue-800",
+    Concluída: "bg-green-100 text-green-800",
     Rejeitada: "bg-red-100 text-red-800",
   };
 

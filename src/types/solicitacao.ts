@@ -1,5 +1,5 @@
 // Representa uma solicitação de serviço (ex: manutenção de viatura)
-export type StatusSolicitacao = "Pendente" | "Aprovada" | "Rejeitada";
+export type StatusSolicitacao = "Pendente" | "Em andamento" | "Concluída" | "Rejeitada";
 export type PrioridadeSolicitacao = "Baixa" | "Média" | "Alta";
 
 // Lista fixa de equipamentos disponíveis para seleção
