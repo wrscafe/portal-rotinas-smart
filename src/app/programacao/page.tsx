@@ -87,7 +87,7 @@ export default async function ProgramacaoPage() {
 
   const listaProgramacoes: Programacao[] = programacoes ?? [];
   const grupos = agruparPorData(listaProgramacoes);
-  const datasOrdenadas = Object.keys(grupos).sort((a, b) => a.localeCompare(b));
+  const datasOrdenadas = Object.keys(grupos).sort((a, b) => b.localeCompare(a));
 
   return (
     <div className="p-6 max-w-6xl">
