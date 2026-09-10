@@ -7,7 +7,7 @@ export interface PT {
   executante: string;
   data_emissao: string;
   data_execucao: string | null;
-  data_validade: string | null;
+  data_execução: string | null;
   status: 'Aberta' | 'Em Andamento' | 'Encerrada' | 'Cancelada';
   usuario_id: string | null;
   data_criacao: string;

@@ -20,7 +20,7 @@ export default function PtForm({ ptId }: PtFormProps) {
   const [emitente, setEmitente] = useState('');
   const [executante, setExecutante] = useState('');
   const [dataEmissao, setDataEmissao] = useState('');
-  const [dataValidade, setDataValidade] = useState('');
+  const [dataExecucao, setDataExecucao] = useState('');
   const [status, setStatus] = useState<PT['status']>('Aberta');
 
   // Estados de controle
@@ -43,7 +43,7 @@ export default function PtForm({ ptId }: PtFormProps) {
         setEmitente(pt.emitente);
         setExecutante(pt.executante);
         setDataEmissao(pt.data_emissao?.slice(0, 10) ?? '');
-        setDataValidade(pt.data_validade?.slice(0, 10) ?? '');
+        setDataExecucao(pt.data_execução?.slice(0, 10) ?? '');
         setStatus(pt.status);
       } else {
         setMensagem({ tipo: 'erro', texto: 'Não foi possível carregar a PT.' });
@@ -67,7 +67,7 @@ export default function PtForm({ ptId }: PtFormProps) {
       emitente,
       executante,
       data_emissao: dataEmissao,
-      data_validade: dataValidade || null,
+      data_execução: dataExecucao || null,
       status,
     };
 
@@ -89,7 +89,7 @@ export default function PtForm({ ptId }: PtFormProps) {
         setEmitente('');
         setExecutante('');
         setDataEmissao('');
-        setDataValidade('');
+        setDataExecucao('');
       } else {
         // Na edição, volta para a listagem após 1 segundo
         setTimeout(() => {
@@ -205,13 +205,13 @@ export default function PtForm({ ptId }: PtFormProps) {
         />
       </div>
 
-      {/* Data de Validade */}
+      {/* Data de Execução */}
       <div>
-        <label className="block text-sm font-medium mb-1">Data de Validade</label>
+        <label className="block text-sm font-medium mb-1">Data de Execução</label>
         <input
           type="date"
-          value={dataValidade}
-          onChange={(e) => setDataValidade(e.target.value)}
+          value={dataExecucao}
+          onChange={(e) => setDataExecucao(e.target.value)}
           className="w-full border rounded px-3 py-2"
         />
       </div>

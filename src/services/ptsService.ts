@@ -11,8 +11,7 @@ type NovaPT = {
   executante: string;
   data_emissao: string;
   data_execucao?: string | null;
-  data_validade?: string | null;
-  status?: PT['status'];
+    status?: PT['status'];
 };
 
 export async function listarPts() {
@@ -65,7 +64,6 @@ export async function criarPt(dados: NovaPT) {
           executante: dados.executante,
           data_emissao: dados.data_emissao,
           data_execucao: dados.data_execucao || null,
-          data_validade: dados.data_validade || null,
           status: dados.status ?? 'Aberta',
         },
       ])
@@ -95,7 +93,6 @@ export async function atualizarPt(id: string, dados: NovaPT) {
         executante: dados.executante,
         data_emissao: dados.data_emissao,
         data_execucao: dados.data_execucao || null,
-        data_validade: dados.data_validade || null,
         status: dados.status,
       })
       .eq('id', id)
