@@ -15,7 +15,7 @@ export interface ChecklistViatura {
   hora: string;
   turno: 'Manhã' | 'Tarde' | 'Noite';
   viatura: string;
-  motorista: string;
+  responsavel: string;
   quilometragem: number;
   niveis: NivelItem[];
   luzes_dianteiras: LuzItem[];

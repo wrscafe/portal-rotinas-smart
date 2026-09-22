@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import { ChecklistMotor, NovoChecklistMotor, MotorEstacionario } from '@/types/checklistMotor'
+import { ChecklistMotor, NovoChecklistMotor, MotorEstacionario, TaxaAnormalidadeMotor } from '@/types/checklistMotor'
 
 // Lista todos os motores estacionários cadastrados (para o campo de seleção do formulário)
 export async function listarMotoresEstacionarios(): Promise<MotorEstacionario[]> {
@@ -108,4 +108,18 @@ export async function excluirChecklistMotor(id: string): Promise<void> {
     console.error('Erro ao excluir checklist de motor:', error)
     throw error
   }
+}
+
+// Busca a taxa de anormalidade agregada por motor (usado no gráfico do dashboard)
+export async function buscarTaxaAnormalidadeMotores(): Promise<TaxaAnormalidadeMotor[]> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase.rpc('get_taxa_anormalidade_motores')
+
+  if (error) {
+    console.error('Erro ao buscar taxa de anormalidade dos motores:', error)
+    throw error
+  }
+
+  return data ?? []
 }

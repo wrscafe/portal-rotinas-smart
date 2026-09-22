@@ -9,6 +9,14 @@ import {
 } from '@/services/checklistMotoresService'
 import { MotorEstacionario, NovoChecklistMotor, StatusVerificacao } from '@/types/checklistMotor'
 
+// ---------- Verificadores fixos (nome → matrícula) ----------
+const VERIFICADORES: Record<string, string> = {
+  Edson: '71146354',
+  Marco: '71808250',
+  Ronaldo: '71146366',
+  Wagner: '71636183',
+}
+
 // ---------- Sub-componente: campo Sim / Não / Não verificado ----------
 function CampoVerificacao({
   label,
@@ -100,6 +108,27 @@ function CampoTexto({
   )
 }
 
+// ---------- Sub-componente: campo somente leitura ----------
+function CampoSomenteLeitura({
+  label,
+  value,
+}: {
+  label: string
+  value: string | null
+}) {
+  return (
+    <div className="mb-4">
+      <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
+      <input
+        type="text"
+        readOnly
+        value={value ?? ''}
+        className="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-600"
+      />
+    </div>
+  )
+}
+
 // ---------- Sub-componente: campo select simples ----------
 function CampoSelect({
   label,
@@ -139,6 +168,14 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </div>
   )
+}
+
+// ---------- Função utilitária: calcula o local a partir do nome do motor ----------
+function calcularLocal(nomeMotor: string): string {
+  if (nomeMotor.startsWith('38')) return 'Unidade 38 (Imbiruçu)'
+  if (nomeMotor.endsWith('05B')) return 'GLP (área final)'
+  if (nomeMotor.endsWith('01E')) return 'Unidade 30 (Casa Velha)'
+  return 'Unidade 30'
 }
 
 // ---------- Estado inicial do formulário ----------
@@ -213,6 +250,13 @@ export default function ChecklistMotorForm({ checklistId, dadosIniciais }: Check
     setForm((prev) => ({ ...prev, [campo]: valor }))
   }
 
+  // Preenche o Local automaticamente sempre que o motor selecionado mudar
+  useEffect(() => {
+    if (motorSelecionado) {
+      atualizar('local', calcularLocal(motorSelecionado.nome))
+    }
+  }, [motorSelecionado])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErro(null)
@@ -262,9 +306,17 @@ export default function ChecklistMotorForm({ checklistId, dadosIniciais }: Check
           </select>
         </div>
 
-        <CampoTexto label="Verificador" value={form.verificador} onChange={(v) => atualizar('verificador', v)} required />
-        <CampoTexto label="Matrícula" value={form.matricula} onChange={(v) => atualizar('matricula', v)} />
-        <CampoTexto label="Local" value={form.local} onChange={(v) => atualizar('local', v)} />
+        <CampoSelect
+          label="Verificador"
+          value={form.verificador}
+          onChange={(v) => {
+            atualizar('verificador', v)
+            atualizar('matricula', VERIFICADORES[v] ?? null)
+          }}
+          opcoes={Object.keys(VERIFICADORES)}
+        />
+        <CampoSomenteLeitura label="Matrícula" value={form.matricula} />
+        <CampoSomenteLeitura label="Local" value={form.local} />
         <CampoTexto label="Número da PT" value={form.numero_pt} onChange={(v) => atualizar('numero_pt', v)} />
         <CampoTexto label="Operador" value={form.operador} onChange={(v) => atualizar('operador', v)} />
         <CampoTexto label="TS Líder" value={form.gerente} onChange={(v) => atualizar('gerente', v)} />

@@ -38,7 +38,7 @@ export default function ChecklistPreview({ checklist }: { checklist: ChecklistVi
 
       <Secao titulo="Dados Gerais">
         <p>Data: {new Date(checklist.data).toLocaleDateString("pt-BR")} — Hora: {checklist.hora} — Turno: {checklist.turno}</p>
-        <p>Viatura: {checklist.viatura} — Motorista: {checklist.motorista}</p>
+        <p>Viatura: {checklist.viatura} — Responsável: {checklist.responsavel}</p>
         <p>Quilometragem: {checklist.quilometragem} km</p>
       </Secao>
 

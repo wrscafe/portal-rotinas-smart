@@ -45,7 +45,7 @@ export default function ChecklistPDF({ checklist }: { checklist: ChecklistViatur
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>DADOS GERAIS</Text>
           <Text>Data: {new Date(checklist.data).toLocaleDateString('pt-BR')}    Hora: {checklist.hora}    Turno: {checklist.turno}</Text>
-          <Text>Viatura: {checklist.viatura}    Motorista: {checklist.motorista}</Text>
+          <Text>Viatura: {checklist.viatura}    Responsável: {checklist.responsavel}</Text>
           <Text>Quilometragem: {checklist.quilometragem} km</Text>
         </View>
 

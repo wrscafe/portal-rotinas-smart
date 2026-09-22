@@ -1,6 +1,15 @@
 // Tipo para os campos de verificação com 3 estados possíveis
 export type StatusVerificacao = boolean | null
 
+// Representa o resultado da função get_taxa_anormalidade_motores()
+export interface TaxaAnormalidadeMotor {
+  motor_id: string
+  motor_nome: string
+  total_checklists: number
+  total_anormalidades: number
+  percentual_anormalidade: number
+}
+
 export interface ChecklistMotor {
   id: string
   motor_id: string

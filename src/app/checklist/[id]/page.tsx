@@ -1,4 +1,4 @@
-// src/app/checklist/[id]/page.tsx
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import BotaoExportarPDF from "@/components/checklist/BotaoExportarPDF";
 import ChecklistPreview from "@/components/checklist/ChecklistPreview";
@@ -30,7 +30,15 @@ export default async function ChecklistDetalhePage({
     <div className="p-8 max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Checklist — {checklist.viatura}</h1>
-        <BotaoExportarPDF checklist={checklist as ChecklistViatura} />
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/checklist/${id}/editar`}
+            className="bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200 text-sm font-medium"
+          >
+            Editar
+          </Link>
+          <BotaoExportarPDF checklist={checklist as ChecklistViatura} />
+        </div>
       </div>
 
       <ChecklistPreview checklist={checklist as ChecklistViatura} />

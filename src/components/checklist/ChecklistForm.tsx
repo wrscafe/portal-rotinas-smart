@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,7 +11,11 @@ const LUZES_TRASEIRAS_PADRAO = ["Lanternas","Seta Direita","Seta Esquerda"];
 
 type StatusNivel = "OK" | "Baixo" | "Crítico";
 
-export default function ChecklistForm() {
+type Props = {
+  checklistId?: string;
+};
+
+export default function ChecklistForm({ checklistId }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
@@ -21,7 +25,7 @@ export default function ChecklistForm() {
     hora: new Date().toTimeString().slice(0,5),
     turno: "Manhã",
     viatura: "AB-01",
-    motorista: "",
+    responsavel: "",
     quilometragem: "",
     avaria_externa: "Não",
     avaria_descricao: "",
@@ -40,6 +44,45 @@ export default function ChecklistForm() {
   const [luzesTraseiras, setLuzesTraseiras] = useState(
     LUZES_TRASEIRAS_PADRAO.map(nome => ({ nome, funcionando: true }))
   );
+
+  // NOVO: carrega os dados quando estamos em modo edição
+  useEffect(() => {
+    if (!checklistId) return; // sem id = modo criação, não faz nada
+
+    async function carregarChecklist() {
+      const { data, error } = await supabase
+        .from("checklist_viaturas")
+        .select("*")
+        .eq("id", checklistId)
+        .single();
+
+      if (error || !data) {
+        alert("Erro ao carregar checklist: " + (error?.message ?? "não encontrado"));
+        return;
+      }
+
+      setForm({
+        data: data.data,
+        hora: data.hora,
+        turno: data.turno,
+        viatura: data.viatura,
+        responsavel: data.responsavel ?? "",
+        quilometragem: String(data.quilometragem ?? ""),
+        avaria_externa: data.avaria_externa ?? "Não",
+        avaria_descricao: data.avaria_descricao ?? "",
+        alerta_painel: data.alerta_painel ?? "Nenhum",
+        pneus: data.pneus ?? "OK",
+        cabine: data.cabine ?? "OK",
+        observacoes: data.observacoes ?? "",
+      });
+
+      if (data.niveis) setNiveis(data.niveis);
+      if (data.luzes_dianteiras) setLuzesDianteiras(data.luzes_dianteiras);
+      if (data.luzes_traseiras) setLuzesTraseiras(data.luzes_traseiras);
+    }
+
+    carregarChecklist();
+  }, [checklistId]);
 
   function calcularStatusGeral() {
     const temProblemaGrave = form.avaria_externa === "Sim" || 
@@ -62,15 +105,22 @@ export default function ChecklistForm() {
 
     const { data: userData } = await supabase.auth.getUser();
 
-    const { error } = await supabase.from("checklist_viaturas").insert({
+    const dados = {
       ...form,
       quilometragem: parseInt(form.quilometragem),
       niveis,
       luzes_dianteiras: luzesDianteiras,
       luzes_traseiras: luzesTraseiras,
       status_geral,
-      usuario_id: userData?.user?.id,
-    });
+    };
+
+    // NOVO: decide entre atualizar (edição) ou inserir (criação)
+    const { error } = checklistId
+      ? await supabase.from("checklist_viaturas").update(dados).eq("id", checklistId)
+      : await supabase.from("checklist_viaturas").insert({
+          ...dados,
+          usuario_id: userData?.user?.id,
+        });
 
     setLoading(false);
 
@@ -109,11 +159,10 @@ export default function ChecklistForm() {
               {VIATURAS.map(v => <option key={v} value={v}>{v}</option>)}
             </select>
           </label>
-          <label>Colaborador
-         <input type="text" value={form.motorista} onChange={e => setForm({...form, motorista: e.target.value})}
-             className="w-full border rounded p-2 mt-1" required />
-            </label>
-
+          <label>Responsável
+            <input type="text" value={form.responsavel} onChange={e => setForm({...form, responsavel: e.target.value})}
+              className="w-full border rounded p-2 mt-1" required />
+          </label>
           <label>Quilometragem
             <input type="number" value={form.quilometragem} onChange={e => setForm({...form, quilometragem: e.target.value})}
               className="w-full border rounded p-2 mt-1" required />
@@ -204,7 +253,7 @@ export default function ChecklistForm() {
 
       <button type="submit" disabled={loading}
         className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50">
-        {loading ? "Salvando..." : "Salvar Checklist"}
+        {loading ? "Salvando..." : checklistId ? "Salvar Alterações" : "Salvar Checklist"}
       </button>
     </form>
   );
