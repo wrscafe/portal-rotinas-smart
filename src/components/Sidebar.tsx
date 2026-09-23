@@ -21,6 +21,7 @@ import {
   Menu,
   X,
   Gauge,
+  Fuel,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { fazerLogout } from "@/services/authService";
@@ -32,6 +33,7 @@ const menuItems = [
   { nome: "Programação", href: "/programacao", icone: Calendar },
   { nome: "Checklist Viaturas", href: "/checklist", icone: ClipboardCheck },
   { nome: "Checklist Motor", href: "/checklist-motor", icone: Gauge },
+  { nome: "Abastecimentos", href: "/abastecimentos", icone: Fuel },
   { nome: "Relatórios", href: "/relatorios", icone: BarChart3 },
   { nome: "Solicitações", href: "/solicitacoes", icone: Mail },
   { nome: "PT", href: "/pt", icone: Wrench },
