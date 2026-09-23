@@ -1,6 +1,7 @@
 // src/app/abastecimentos/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import { AbastecimentoComVeiculo } from "@/types/abastecimento";
+import { LinhaAbastecimento } from "@/components/abastecimentos/LinhaAbastecimento";
 import Link from "next/link";
 
 // Retorna a data (YYYY-MM-DD) no fuso de São Paulo, usada como chave de agrupamento
@@ -85,35 +86,14 @@ export default async function AbastecimentosPage() {
                     <th className="text-left px-4 py-3 font-semibold text-gray-700">Litros</th>
                     <th className="text-left px-4 py-3 font-semibold text-gray-700">KM</th>
                     <th className="text-left px-4 py-3 font-semibold text-gray-700">Posto</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700">Ações</th>
                   </tr>
                 </thead>
-               <tbody className="divide-y divide-gray-100">
-  {grupos[data].map((item) => (
-    <tr key={item.id} className="hover:bg-gray-50">
-      <td className="px-4 py-3 font-medium text-gray-900">
-        <Link href={`/abastecimentos/${item.id}`} className="block">
-          {item.viaturas_equipamentos?.nome ?? "—"}
-        </Link>
-      </td>
-      <td className="px-4 py-3 text-gray-600">
-        <Link href={`/abastecimentos/${item.id}`} className="block">
-          {item.litros} L
-        </Link>
-      </td>
-      <td className="px-4 py-3 text-gray-600">
-        <Link href={`/abastecimentos/${item.id}`} className="block">
-          {item.km} km
-        </Link>
-      </td>
-      <td className="px-4 py-3 text-gray-600">
-        <Link href={`/abastecimentos/${item.id}`} className="block">
-          {item.posto}
-        </Link>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+                <tbody className="divide-y divide-gray-100">
+                  {grupos[data].map((item) => (
+                    <LinhaAbastecimento key={item.id} item={item} />
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
@@ -122,4 +102,3 @@ export default async function AbastecimentosPage() {
     </div>
   );
 }
-
